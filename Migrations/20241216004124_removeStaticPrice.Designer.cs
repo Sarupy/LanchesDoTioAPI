@@ -3,6 +3,7 @@ using System;
 using LanchesDoTioAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LanchesDoTioAPI.Migrations
 {
     [DbContext(typeof(LanchesContext))]
-    partial class LanchesContextModelSnapshot : ModelSnapshot
+    [Migration("20241216004124_removeStaticPrice")]
+    partial class removeStaticPrice
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -145,7 +148,7 @@ namespace LanchesDoTioAPI.Migrations
             modelBuilder.Entity("LanchesDoTioAPI.Models.PriceHistory", b =>
                 {
                     b.HasOne("LanchesDoTioAPI.Models.Meal", "Meal")
-                        .WithMany("PriceHistoryList")
+                        .WithMany("PriceHistory")
                         .HasForeignKey("MealId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -160,7 +163,7 @@ namespace LanchesDoTioAPI.Migrations
 
             modelBuilder.Entity("LanchesDoTioAPI.Models.Meal", b =>
                 {
-                    b.Navigation("PriceHistoryList");
+                    b.Navigation("PriceHistory");
                 });
 
             modelBuilder.Entity("LanchesDoTioAPI.Models.Order", b =>

@@ -6,13 +6,14 @@ namespace LanchesDoTioAPI.Models
     {
         public int Id { get; set; }
         public int CustomerId { get; set; }
+        public DateTime CreatedDate { get; set; }
         public Customer? Customer { get; set; }
         public List<OrderItem>? Items { get; set; }
         [NotMapped]
         public decimal TotalPrice
         {
             get {
-                return Items.Sum(x => x.Quantity * x.Meal.CurrentPrice);
+                return Items.Sum(x => x.Quantity * x.Meal.getPriceAtDateTime(CreatedDate));
             }
         }
     }

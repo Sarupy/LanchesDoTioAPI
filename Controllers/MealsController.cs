@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LanchesDoTioAPI.Data;
 using LanchesDoTioAPI.Models;
+using LanchesDoTioAPI.DTO;
+using LanchesDoTioAPI.Services.Interfaces;
 
 namespace LanchesDoTioAPI.Controllers
 {
@@ -15,22 +15,24 @@ namespace LanchesDoTioAPI.Controllers
     public class MealsController : ControllerBase
     {
         private readonly LanchesContext _context;
+        private readonly IMealService _mealService;
 
-        public MealsController(LanchesContext context)
+        public MealsController(LanchesContext context, IMealService mealService)
         {
             _context = context;
+            _mealService = mealService;
         }
 
         // GET: api/Meals
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Meal>>> GetMeal()
+        public async Task<ActionResult<IEnumerable<MealDTO>>> GetAll()
         {
-            return await _context.Meal.ToListAsync();
+            return await _context.Meal.Include(x => x.PriceHistoryList).Select(x => _mealService.ModelToDto(x)).ToListAsync();
         }
 
         // GET: api/Meals/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Meal>> GetMeal(int id)
+        public async Task<ActionResult<Meal>> GetById(int id)
         {
             var meal = await _context.Meal.FindAsync(id);
 
@@ -42,42 +44,30 @@ namespace LanchesDoTioAPI.Controllers
             return meal;
         }
 
-        // PUT: api/Meals/5
+        // PUT: api/Meals/rename/5?newName={newName}
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutMeal(int id, Meal meal)
+        [HttpPut("Rename/{id}")]
+        public async Task<IActionResult> Rename(int id, [FromQuery] string newName)
         {
-            if (id != meal.Id)
-            {
-                return BadRequest();
-            }
+            await _mealService.Rename(id, newName);
+            return Ok("Meal renamed successfully.");
+        }
 
-            _context.Entry(meal).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MealExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+        // PUT: api/Meals/updatePrice/5?newPrice={newPrice}
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("UpdatePrice/{id}")]
+        public async Task<IActionResult> UpdatePrice(int id, [FromQuery] decimal newPrice)
+        {
+            await _mealService.UpdatePrice(id, newPrice);
+            return Ok("Meal price updated successfully.");
         }
 
         // POST: api/Meals
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Meal>> PostMeal(Meal meal)
+        public async Task<ActionResult<Meal>> Create(MealDTO mealDTO)
         {
+            var meal = _mealService.DtoToModel(mealDTO);
             _context.Meal.Add(meal);
             await _context.SaveChangesAsync();
 
@@ -86,7 +76,7 @@ namespace LanchesDoTioAPI.Controllers
 
         // DELETE: api/Meals/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMeal(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var meal = await _context.Meal.FindAsync(id);
             if (meal == null)
@@ -98,11 +88,6 @@ namespace LanchesDoTioAPI.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
-        }
-
-        private bool MealExists(int id)
-        {
-            return _context.Meal.Any(e => e.Id == id);
         }
     }
 }

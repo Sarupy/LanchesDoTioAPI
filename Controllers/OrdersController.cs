@@ -25,8 +25,7 @@ namespace LanchesDoTioAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Order>>> GetOrder()
         {
-            var a = await _context.Order.Include(x => x.Customer).Include(x => x.Items).ThenInclude(x => x.Meal).ToListAsync();
-            return a;
+            return await _context.Order.Include(x => x.Items).ThenInclude(x => x.Meal).ToListAsync();
         }
 
         // GET: api/Orders/5

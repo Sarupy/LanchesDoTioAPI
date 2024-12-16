@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace LanchesDoTioAPI.Models
 {
@@ -8,6 +9,7 @@ namespace LanchesDoTioAPI.Models
         public int MealId { get; set; }
         public Meal? Meal { get; set; }
         public int OrderId { get; set; }
+        [JsonIgnore]
         public Order? Order { get; set; }
         public int Quantity { get; set; }
     }
