@@ -2,6 +2,7 @@
 using LanchesDoTioAPI.DTO;
 using LanchesDoTioAPI.Models;
 using LanchesDoTioAPI.Services.Interfaces;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace LanchesDoTioAPI.Services.Implemetations
@@ -12,9 +13,72 @@ namespace LanchesDoTioAPI.Services.Implemetations
         public MealService(LanchesContext context)
         {
             _context = context;
+        }    
+
+        public async Task<MealDTO> GetById(int mealId)
+        {
+            var meal = await EnsureMealExists(mealId);
+            return ModelToDto(meal);
+        }
+        public async Task<IEnumerable<MealDTO>> GetAll()
+        {
+            var allMealsQuery = _context.Meal.Include(x => x.PriceHistoryList).Select(x => ModelToDto(x));
+            return await allMealsQuery.ToListAsync();
         }
 
-        public MealDTO ModelToDto(Meal meal)
+        public async Task<MealDTO> Create(MealDTO mealDTO)
+        {
+            var meal = DtoToModel(mealDTO);
+            _context.Meal.Add(meal);
+            var mealId = await _context.SaveChangesAsync();
+            mealDTO.Id = mealId;
+            return mealDTO;
+        }
+
+        public async Task<MealDTO> Rename(int mealId, string newName)
+        {
+            var meal = await EnsureMealExists(mealId);
+
+            if (string.IsNullOrWhiteSpace(newName))
+                throw new BadHttpRequestException("New name cannot be empty.");
+
+            if (newName != meal.Name)
+            {
+                meal.Name = newName;
+                _context.Entry(meal).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+            }
+                
+            return ModelToDto(meal);
+        }
+
+        public async Task<MealDTO> UpdatePrice(int mealId, decimal newPrice)
+        {
+            var meal = await EnsureMealExists(mealId);
+
+            if (newPrice == 0)
+                throw new BadHttpRequestException("Price cannot be empty or zero.");
+
+            if (newPrice != meal.CurrentPrice)
+            {
+                meal.updatePrice(newPrice);
+                _context.Entry(meal).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+            }
+
+            return ModelToDto(meal); ;
+        }
+
+        public async Task Delete(int mealId)
+        {
+            var meal = await EnsureMealExists(mealId);
+
+            _context.Meal.Remove(meal);
+            await _context.SaveChangesAsync();
+        }
+
+
+        private static MealDTO ModelToDto(Meal meal)
         {
             return new MealDTO
             {
@@ -23,7 +87,7 @@ namespace LanchesDoTioAPI.Services.Implemetations
                 Price = meal.CurrentPrice
             };
         }
-        public Meal DtoToModel(MealDTO mealDTO)
+        private static Meal DtoToModel(MealDTO mealDTO)
         {
             return new Meal
             {
@@ -32,40 +96,9 @@ namespace LanchesDoTioAPI.Services.Implemetations
                 PriceHistoryList = [new PriceHistory(mealDTO.Price)]
             };
         }
-        public async Task<Meal> Rename(int mealId, string newName)
+        private async Task<Meal> EnsureMealExists(int mealId)
         {
-            var meal = EnsureMealExists(mealId);
-
-            if (string.IsNullOrWhiteSpace(newName))
-                throw new BadHttpRequestException("New name cannot be empty.");
-
-            if (newName == meal.Name)
-                return meal;
-
-            meal.Name = newName;
-            _context.Entry(meal).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
-            return meal;
-        }
-
-        public async Task<Meal> UpdatePrice(int mealId, decimal newPrice)
-        {
-            var meal = EnsureMealExists(mealId);
-
-            if (newPrice == meal.CurrentPrice)
-                return meal;
-
-            meal.updatePrice(newPrice);
-            _context.Entry(meal).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
-            return meal;
-        }
-
-        private Meal EnsureMealExists(int mealId)
-        {
-            var meal = _context.Meal.Include(x => x.PriceHistoryList).FirstOrDefault(x=> x.Id == mealId);
+            var meal = await _context.Meal.Include(x => x.PriceHistoryList).FirstOrDefaultAsync(x=> x.Id == mealId);
 
             if (meal == null)
                 throw new KeyNotFoundException($"Meal with ID {mealId} was not found.");

@@ -25,67 +25,57 @@ namespace LanchesDoTioAPI.Controllers
 
         // GET: api/Meals
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MealDTO>>> GetAll()
+        public async Task<ActionResult<IEnumerable<MealDTO>>> GetMeals()
         {
-            return await _context.Meal.Include(x => x.PriceHistoryList).Select(x => _mealService.ModelToDto(x)).ToListAsync();
+            var meals = await _mealService.GetAll();
+
+            return Ok(meals);
         }
 
         // GET: api/Meals/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Meal>> GetById(int id)
+        public async Task<ActionResult<MealDTO>> GetMealById(int id)
         {
-            var meal = await _context.Meal.FindAsync(id);
+            var meals = await _mealService.GetById(id);
 
-            if (meal == null)
-            {
-                return NotFound();
-            }
-
-            return meal;
+            return Ok(meals);
         }
 
         // PUT: api/Meals/rename/5?newName={newName}
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("Rename/{id}")]
-        public async Task<IActionResult> Rename(int id, [FromQuery] string newName)
+        public async Task<ActionResult<MealDTO>> RenameMeal(int id, [FromQuery] string newName)
         {
-            await _mealService.Rename(id, newName);
-            return Ok("Meal renamed successfully.");
+            var meal = await _mealService.Rename(id, newName);
+
+            return Ok(meal);
         }
 
         // PUT: api/Meals/updatePrice/5?newPrice={newPrice}
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("UpdatePrice/{id}")]
-        public async Task<IActionResult> UpdatePrice(int id, [FromQuery] decimal newPrice)
+        public async Task<ActionResult<MealDTO>> UpdateMealPrice(int id, [FromQuery] decimal newPrice)
         {
-            await _mealService.UpdatePrice(id, newPrice);
-            return Ok("Meal price updated successfully.");
+            var meal = await _mealService.UpdatePrice(id, newPrice);
+
+            return Ok(meal);
         }
 
         // POST: api/Meals
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Meal>> Create(MealDTO mealDTO)
+        public async Task<ActionResult<Meal>> CreateMeal(MealDTO mealDTO)
         {
-            var meal = _mealService.DtoToModel(mealDTO);
-            _context.Meal.Add(meal);
-            await _context.SaveChangesAsync();
+            var meal = await _mealService.Create(mealDTO);
 
-            return CreatedAtAction("GetMeal", new { id = meal.Id }, meal);
+            return CreatedAtAction(nameof(GetMealById), new { id = meal.Id }, meal);
         }
 
         // DELETE: api/Meals/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var meal = await _context.Meal.FindAsync(id);
-            if (meal == null)
-            {
-                return NotFound();
-            }
-
-            _context.Meal.Remove(meal);
-            await _context.SaveChangesAsync();
+            await _mealService.Delete(id);
 
             return NoContent();
         }
