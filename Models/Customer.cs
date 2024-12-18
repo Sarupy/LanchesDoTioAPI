@@ -6,16 +6,6 @@ namespace LanchesDoTioAPI.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public List<Order>? Orders { get; set; }
-
-        [NotMapped]
-        public decimal Debt 
-        {
-            get
-            {
-                return Orders.Sum(x => x.TotalPrice);
-            }
-        }
-
+        public List<Order>? Orders { get; set; } = new List<Order>();
     }
 }

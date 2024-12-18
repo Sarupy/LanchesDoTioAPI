@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LanchesDoTioAPI.Data;
 using LanchesDoTioAPI.Models;
+using LanchesDoTioAPI.Services.Interfaces;
+using LanchesDoTioAPI.DTO;
 
 namespace LanchesDoTioAPI.Controllers
 {
@@ -15,40 +17,46 @@ namespace LanchesDoTioAPI.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly LanchesContext _context;
-
-        public OrdersController(LanchesContext context)
+        private readonly IOrderService _orderService;
+        public OrdersController(LanchesContext context, IOrderService orderService)
         {
             _context = context;
+            _orderService = orderService;
         }
 
         // GET: api/Orders
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Order>>> GetOrder()
+        public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
         {
-            return await _context.Order.Include(x => x.Items).ThenInclude(x => x.Meal).ToListAsync();
+            var orders = _orderService.GetAll();
+
+            return Ok(orders);
         }
 
         // GET: api/Orders/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Order>> GetOrder(int id)
+        public async Task<ActionResult<Order>> GetOrderById(int id)
         {
-            var order = await _context.Order.FindAsync(id);
+            var order = _orderService.GetById(id);
 
-            if (order == null)
-            {
-                return NotFound();
-            }
+            return Ok(order);
+        }
 
-            return order;
+        // GET: api/Orders/ByCustomer/5
+        [HttpGet("ByCustomer/{id}")]
+        public async Task<ActionResult<Order>> GetOrdersByCustomerId(int id)
+        {
+            var order = _orderService.GetByCustomer(id);
+
+            return Ok(order);
         }
 
         // POST: api/Orders
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Order>> PostOrder(Order order)
+        public async Task<ActionResult<Order>> PostOrder(OrderDTO orderDTO)
         {
-            _context.Order.Add(order);
-            await _context.SaveChangesAsync();
+            var order = _orderService.Create(orderDTO);
 
             return CreatedAtAction("GetOrder", new { id = order.Id }, order);
         }

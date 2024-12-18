@@ -1,5 +1,4 @@
 ﻿using LanchesDoTioAPI.DTO;
-using LanchesDoTioAPI.Models;
 
 namespace LanchesDoTioAPI.Services.Interfaces
 {
@@ -11,6 +10,5 @@ namespace LanchesDoTioAPI.Services.Interfaces
         public Task<IEnumerable<MealDTO>> GetAll();
         public Task<MealDTO> Create(MealDTO mealDTO);
         public Task Delete(int mealId);
-
     }
 }

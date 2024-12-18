@@ -2,7 +2,6 @@
 using LanchesDoTioAPI.DTO;
 using LanchesDoTioAPI.Models;
 using LanchesDoTioAPI.Services.Interfaces;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace LanchesDoTioAPI.Services.Implemetations
@@ -23,7 +22,7 @@ namespace LanchesDoTioAPI.Services.Implemetations
         public async Task<IEnumerable<MealDTO>> GetAll()
         {
             var allMealsQuery = _context.Meal.Include(x => x.PriceHistoryList).Select(x => ModelToDto(x));
-            return await allMealsQuery.ToListAsync();
+            return await allMealsQuery.AsNoTracking().ToListAsync();
         }
 
         public async Task<MealDTO> Create(MealDTO mealDTO)
@@ -61,7 +60,7 @@ namespace LanchesDoTioAPI.Services.Implemetations
 
             if (newPrice != meal.CurrentPrice)
             {
-                meal.updatePrice(newPrice);
+                meal.UpdatePrice(newPrice);
                 _context.Entry(meal).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
             }
@@ -78,7 +77,7 @@ namespace LanchesDoTioAPI.Services.Implemetations
         }
 
 
-        private static MealDTO ModelToDto(Meal meal)
+        public static MealDTO ModelToDto(Meal meal)
         {
             return new MealDTO
             {

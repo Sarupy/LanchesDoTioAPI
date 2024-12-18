@@ -42,7 +42,6 @@ namespace LanchesDoTioAPI.Controllers
         }
 
         // PUT: api/Meals/rename/5?newName={newName}
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("Rename/{id}")]
         public async Task<ActionResult<MealDTO>> RenameMeal(int id, [FromQuery] string newName)
         {
@@ -52,7 +51,6 @@ namespace LanchesDoTioAPI.Controllers
         }
 
         // PUT: api/Meals/updatePrice/5?newPrice={newPrice}
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("UpdatePrice/{id}")]
         public async Task<ActionResult<MealDTO>> UpdateMealPrice(int id, [FromQuery] decimal newPrice)
         {
@@ -62,7 +60,6 @@ namespace LanchesDoTioAPI.Controllers
         }
 
         // POST: api/Meals
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Meal>> CreateMeal(MealDTO mealDTO)
         {

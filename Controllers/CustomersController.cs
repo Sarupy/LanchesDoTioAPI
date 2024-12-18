@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LanchesDoTioAPI.Data;
 using LanchesDoTioAPI.Models;
+using LanchesDoTioAPI.Services.Interfaces;
+using LanchesDoTioAPI.DTO;
+using LanchesDoTioAPI.Services.Implemetations;
 
 namespace LanchesDoTioAPI.Controllers
 {
@@ -15,94 +18,57 @@ namespace LanchesDoTioAPI.Controllers
     public class CustomersController : ControllerBase
     {
         private readonly LanchesContext _context;
+        private readonly ICustomerService _customerService;
 
-        public CustomersController(LanchesContext context)
+        public CustomersController(LanchesContext context, ICustomerService customerService)
         {
             _context = context;
+            _customerService = customerService;
         }
 
         // GET: api/Customers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers()
+        public async Task<ActionResult<IEnumerable<CustomerDTO>>> GetCustomers()
         {
-            return await _context.Customer.ToListAsync();
+            var allCustomers = _customerService.GetAll();
+            return Ok(allCustomers);
         }
 
         // GET: api/Customers/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Customer>> GetCustomer(int id)
+        public async Task<ActionResult<CustomerDTO>> GetCustomerById(int id)
         {
-            var customer = await _context.Customer.FindAsync(id);
+            var customer = _customerService.GetById(id);
 
-            if (customer == null)
-            {
-                return NotFound();
-            }
-
-            return customer;
+            return Ok(customer);
         }
 
-        // PUT: api/Customers/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCustomer(int id, Customer customer)
+        // PUT: api/Customers/rename/5?newName={newName}
+        [HttpPut("Rename/{id}")]
+        public async Task<ActionResult<CustomerDTO>> RenameCustomer(int id, [FromQuery] string newName)
         {
-            if (id != customer.Id)
-            {
-                return BadRequest();
-            }
+            var customer = await _customerService.Rename(id, newName);
 
-            _context.Entry(customer).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CustomerExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            return Ok(customer);
         }
+
 
         // POST: api/Customers
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Customer>> PostCustomer(Customer customer)
+        public async Task<ActionResult<CustomerDTO>> CreateCustomer(CustomerDTO customerDTO)
         {
-            _context.Customer.Add(customer);
-            await _context.SaveChangesAsync();
+            var customer = await _customerService.Create(customerDTO);
 
-            return CreatedAtAction("GetCustomer", new { id = customer.Id }, customer);
+            return CreatedAtAction(nameof(GetCustomerById), new { id = customer.Id }, customer);
         }
 
         // DELETE: api/Customers/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCustomer(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var customer = await _context.Customer.FindAsync(id);
-            if (customer == null)
-            {
-                return NotFound();
-            }
-
-            _context.Customer.Remove(customer);
-            await _context.SaveChangesAsync();
+            await _customerService.Delete(id);
 
             return NoContent();
-        }
-
-        private bool CustomerExists(int id)
-        {
-            return _context.Customer.Any(e => e.Id == id);
         }
     }
 }

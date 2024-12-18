@@ -9,13 +9,14 @@ namespace LanchesDoTioAPI.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public List<PriceHistory> PriceHistoryList { get; set; }
+
         [NotMapped]
         public decimal CurrentPrice 
         { 
-            get { return getPriceAtDateTime(DateTime.Now); }
+            get { return GetPriceAtDateTime(DateTime.Now); }
         }
-        
-        public decimal getPriceAtDateTime(DateTime datetime)
+
+        public decimal GetPriceAtDateTime(DateTime datetime)
         {
             if (PriceHistoryList?.Count > 0)
             {
@@ -29,7 +30,7 @@ namespace LanchesDoTioAPI.Models
             throw new Exception($"Meal had no price at {datetime.ToShortDateString()}.");
         }
 
-        public void updatePrice(decimal price)
+        public void UpdatePrice(decimal price)
         {
             PriceHistoryList.Add(new PriceHistory(price));
         }
