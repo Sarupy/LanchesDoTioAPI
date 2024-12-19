@@ -1,4 +1,5 @@
 ﻿using LanchesDoTioAPI.DTO;
+using System.Threading.Tasks;
 
 namespace LanchesDoTioAPI.Services.Interfaces
 {
@@ -7,7 +8,7 @@ namespace LanchesDoTioAPI.Services.Interfaces
         public Task<OrderDTO> GetById(int orderId);
         public Task<IEnumerable<OrderDTO>> GetAll();
         public Task<OrderDTO> Create(OrderDTO orderDTO);
-        public Task<OrderDTO> GetByCustomer(int customerId);
+        public Task<IEnumerable<OrderDTO>> GetByCustomer(int customerId);
     }
 }
 

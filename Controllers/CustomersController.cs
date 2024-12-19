@@ -30,7 +30,7 @@ namespace LanchesDoTioAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CustomerDTO>>> GetCustomers()
         {
-            var allCustomers = _customerService.GetAll();
+            var allCustomers = await _customerService.GetAll();
             return Ok(allCustomers);
         }
 
@@ -38,7 +38,7 @@ namespace LanchesDoTioAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<CustomerDTO>> GetCustomerById(int id)
         {
-            var customer = _customerService.GetById(id);
+            var customer = await _customerService.GetById(id);
 
             return Ok(customer);
         }

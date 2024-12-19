@@ -1,11 +1,12 @@
 ﻿using LanchesDoTioAPI.Data;
 using LanchesDoTioAPI.DTO;
 using LanchesDoTioAPI.Models;
+using LanchesDoTioAPI.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace LanchesDoTioAPI.Services.Implemetations
 {
-    public class CustomerService
+    public class CustomerService : ICustomerService
     {
         private readonly LanchesContext _context;
         public CustomerService(LanchesContext context)
@@ -20,8 +21,8 @@ namespace LanchesDoTioAPI.Services.Implemetations
         }
         public async Task<IEnumerable<CustomerDTO>> GetAll()
         {
-            var allCustomersQuery = _context.Customer.Include(x => x.Orders).Select(x => ModelToDto(x));
-            return await allCustomersQuery.AsNoTracking().ToListAsync();
+            var allCustomersQuery = _context.Customer.Include(x => x.Orders);
+            return (await allCustomersQuery.AsNoTracking().ToListAsync()).Select(x => ModelToDto(x));
         }
 
         public async Task<CustomerDTO> Create(CustomerDTO customerDTO)
@@ -43,7 +44,22 @@ namespace LanchesDoTioAPI.Services.Implemetations
 
             return ModelToDto(customer);
         }
+        public async Task<CustomerDTO> Rename(int customerId, string newName)
+        {
+            var customer = await EnsureCustomerExists(customerId);
 
+            if (string.IsNullOrWhiteSpace(newName))
+                throw new BadHttpRequestException("New name cannot be empty.");
+
+            if (newName != customer.Name)
+            {
+                customer.Name = newName;
+                _context.Entry(customer).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+            }
+
+            return ModelToDto(customer);
+        }
 
         private static CustomerDTO ModelToDto(Customer customer)
         {

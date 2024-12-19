@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LanchesDoTioAPI.Services.Implemetations
 {
-    public class OrderService
+    public class OrderService: IOrderService
     {
         private readonly LanchesContext _context;
         private readonly ICustomerService _customerService;
