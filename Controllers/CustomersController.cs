@@ -39,7 +39,7 @@ namespace LanchesDoTioAPI.Controllers
             }
             catch (Exception ex) {
                 _logger.LogError(ex.Message,
-                DateTime.UtcNow.ToLongTimeString());
+                DateTime.UtcNow.ToLongTimeString()); 
                 return Ok(new List<CustomerDTO>());
             }
         }
