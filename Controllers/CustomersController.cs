@@ -21,7 +21,7 @@ namespace LanchesDoTioAPI.Controllers
         private readonly ICustomerService _customerService;
         private readonly ILogger _logger;
 
-        public CustomersController(LanchesContext context, ICustomerService customerService,  ILogger logger)
+        public CustomersController(LanchesContext context, ICustomerService customerService,  ILogger<CustomersController> logger)
         {
             _context = context;
             _customerService = customerService;

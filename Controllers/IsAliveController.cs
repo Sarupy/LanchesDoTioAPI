@@ -13,7 +13,7 @@ namespace LanchesDoTioAPI.Controllers
     {
         private readonly ILogger _logger;
 
-        public IsAliveController(ILogger logger)
+        public IsAliveController(ILogger<IsAliveController> logger)
         {
             _logger = logger;
         }
