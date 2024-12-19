@@ -15,7 +15,7 @@ builder.Services.AddDbContext<LanchesContext>(options =>
 );
 
 Log.Logger = new LoggerConfiguration()
-    .WriteTo.File("logs/app.log", rollingInterval: RollingInterval.Day) // Arquivo rotacionado diariamente
+    .WriteTo.File("Logs/app.log", rollingInterval: RollingInterval.Day) // Arquivo rotacionado diariamente
     .WriteTo.Console() // Opcional: log no console também
     .CreateLogger();
 

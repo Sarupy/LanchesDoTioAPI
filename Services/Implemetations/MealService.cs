@@ -34,38 +34,29 @@ namespace LanchesDoTioAPI.Services.Implemetations
             return mealDTO;
         }
 
-        public async Task<MealDTO> Rename(int mealId, string newName)
+        public async Task<MealDTO> Update(int mealId, MealDTO mealDTO)
         {
-            var meal = await EnsureMealExists(mealId);
-
-            if (string.IsNullOrWhiteSpace(newName))
+            if (string.IsNullOrWhiteSpace(mealDTO.Name))
                 throw new BadHttpRequestException("New name cannot be empty.");
 
-            if (newName != meal.Name)
-            {
-                meal.Name = newName;
-                _context.Entry(meal).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
-            }
-                
-            return ModelToDto(meal);
-        }
-
-        public async Task<MealDTO> UpdatePrice(int mealId, decimal newPrice)
-        {
-            var meal = await EnsureMealExists(mealId);
-
-            if (newPrice == 0)
+            if (mealDTO.Price == 0)
                 throw new BadHttpRequestException("Price cannot be empty or zero.");
 
-            if (newPrice != meal.CurrentPrice)
-            {
-                meal.UpdatePrice(newPrice);
-                _context.Entry(meal).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
-            }
+            var meal = await EnsureMealExists(mealId);
 
-            return ModelToDto(meal); ;
+            if (meal.Name == mealDTO.Name && meal.CurrentPrice == mealDTO.Price)
+                return mealDTO;
+
+            if (meal.CurrentPrice != mealDTO.Price)
+                meal.PriceHistoryList.Add(new PriceHistory(mealDTO.Price));
+
+            if (meal.Name != mealDTO.Name)
+                meal.Name = mealDTO.Name;
+
+            _context.Entry(meal).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+                
+            return ModelToDto(meal);
         }
 
         public async Task Delete(int mealId)
