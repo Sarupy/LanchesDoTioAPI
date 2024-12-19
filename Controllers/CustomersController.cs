@@ -19,17 +19,21 @@ namespace LanchesDoTioAPI.Controllers
     {
         private readonly LanchesContext _context;
         private readonly ICustomerService _customerService;
+        private readonly ILogger _logger;
 
-        public CustomersController(LanchesContext context, ICustomerService customerService)
+        public CustomersController(LanchesContext context, ICustomerService customerService,  ILogger logger)
         {
             _context = context;
             _customerService = customerService;
+            _logger = logger;
         }
 
         // GET: api/Customers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CustomerDTO>>> GetCustomers()
         {
+            _logger.LogInformation("Sarpee-----------eeeeeeeeeeeeee------------",
+            DateTime.UtcNow.ToLongTimeString());
             var allCustomers = await _customerService.GetAll();
             return Ok(allCustomers);
         }
