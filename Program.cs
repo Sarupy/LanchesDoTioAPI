@@ -4,6 +4,16 @@ using LanchesDoTioAPI.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                      .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true);
+
+var connectionString = builder.Configuration.GetConnectionString("Sqlite");
+
+builder.Services.AddDbContext<LanchesContext>(options =>
+    options.UseSqlite(connectionString)
+);
+
 Log.Logger = new LoggerConfiguration()
     .WriteTo.File("logs/app.log", rollingInterval: RollingInterval.Day) // Arquivo rotacionado diariamente
     .WriteTo.Console() // Opcional: log no console também
@@ -22,11 +32,6 @@ builder.Services.AddScoped<IMealService, MealService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
-
-
-builder.Services.AddDbContext<LanchesContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("Sqlite"))
-);
 
 var app = builder.Build();
 
