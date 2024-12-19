@@ -2,9 +2,16 @@ using LanchesDoTioAPI.Data;
 using LanchesDoTioAPI.Services.Implemetations;
 using LanchesDoTioAPI.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 var builder = WebApplication.CreateBuilder(args);
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.File("logs/app.log", rollingInterval: RollingInterval.Day) // Arquivo rotacionado diariamente
+    .WriteTo.Console() // Opcional: log no console também
+    .CreateLogger();
+
+// Substitui o logger padrão pelo Serilog
+builder.Host.UseSerilog();
+
 // Add services to the container.
 
 builder.Services.AddControllers();

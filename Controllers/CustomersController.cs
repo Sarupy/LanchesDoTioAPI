@@ -32,10 +32,15 @@ namespace LanchesDoTioAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CustomerDTO>>> GetCustomers()
         {
-            _logger.LogInformation("Sarpee-----------eeeeeeeeeeeeee------------",
-            DateTime.UtcNow.ToLongTimeString());
-            var allCustomers = await _customerService.GetAll();
-            return Ok(allCustomers);
+            try
+            {
+                var allCustomers = await _customerService.GetAll();
+                return Ok(allCustomers);
+            }
+            catch (Exception ex) {
+                _logger.LogError(ex.Message,
+                DateTime.UtcNow.ToLongTimeString());
+            }
         }
 
         // GET: api/Customers/5
