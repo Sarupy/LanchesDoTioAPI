@@ -45,28 +45,11 @@ namespace LanchesDoTioAPI.Controllers
         [HttpPut("Rename/{id}")]
         public async Task<ActionResult<MealDTO>> UpdateMeal(int id, [FromBody] MealDTO mealDTO)
         {
-            var meal = await _mealService.Update(id, newName);
+            var meal = await _mealService.Update(id, mealDTO);
 
             return Ok(meal);
         }
 
-        // PUT: api/Meals/rename/5?newName={newName}
-        [HttpPut("Rename/{id}")]
-        public async Task<ActionResult<MealDTO>> RenameMeal(int id, [FromQuery] string newName)
-        {
-            var meal = await _mealService.Rename(id, newName);
-
-            return Ok(meal);
-        }
-
-        // PUT: api/Meals/updatePrice/5?newPrice={newPrice}
-        [HttpPut("UpdatePrice/{id}")]
-        public async Task<ActionResult<MealDTO>> UpdateMealPrice(int id, [FromQuery] decimal newPrice)
-        {
-            var meal = await _mealService.UpdatePrice(id, newPrice);
-
-            return Ok(meal);
-        }
 
         // POST: api/Meals
         [HttpPost]
