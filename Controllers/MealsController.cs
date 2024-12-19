@@ -42,7 +42,7 @@ namespace LanchesDoTioAPI.Controllers
         }
 
         // PUT: api/Meals/5]
-        [HttpPut("Rename/{id}")]
+        [HttpPut("{id}")]
         public async Task<ActionResult<MealDTO>> UpdateMeal(int id, [FromBody] MealDTO mealDTO)
         {
             var meal = await _mealService.Update(id, mealDTO);
