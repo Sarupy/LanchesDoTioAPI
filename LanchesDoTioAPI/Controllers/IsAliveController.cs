@@ -21,7 +21,7 @@ namespace LanchesDoTioAPI.Controllers
         [HttpGet]
         public ActionResult<Object> Get()
         {
-            _logger.LogInformation("Log started.",
+            _logger.LogInformation("Log started",
             DateTime.UtcNow.ToLongTimeString());
 
             return Ok(new { status = "Alive!" });
