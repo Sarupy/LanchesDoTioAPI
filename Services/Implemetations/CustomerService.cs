@@ -21,7 +21,7 @@ namespace LanchesDoTioAPI.Services.Implemetations
         }
         public async Task<IEnumerable<CustomerDTO>> GetAll()
         {
-            var allCustomersQuery = _context.Customer.Include(x => x.Orders);
+            var allCustomersQuery = _context.Customer.Include(x => x.Orders).ThenInclude(x=> x.Items).ThenInclude(x=> x.Meal).ThenInclude(x=>x.PriceHistoryList);
             return (await allCustomersQuery.AsNoTracking().ToListAsync()).Select(x => ModelToDto(x));
         }
 
@@ -67,7 +67,13 @@ namespace LanchesDoTioAPI.Services.Implemetations
 
             if (customer.Orders?.Count > 0)
             {
-                debt += customer.Orders.Where(x=> x.Type == Models.Enums.OrderType.Purchase).Sum(x => x.getTotalCost());
+                foreach (var order in customer.Orders)
+                {
+                    if (order.Type == Models.Enums.OrderType.Payment)                  
+                        debt -= order.PaymentAmount;
+
+                    debt += order.getTotalCost();
+                }
             }   
 
             return new CustomerDTO

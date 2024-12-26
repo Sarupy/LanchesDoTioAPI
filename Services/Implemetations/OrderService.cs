@@ -34,7 +34,7 @@ namespace LanchesDoTioAPI.Services.Implemetations
 
         public async Task<IEnumerable<OrderDTO>> GetAll()
         {
-            var ordersQuery = _context.Order.Include(x => x.Customer).Include(x => x.Items).Select(x => ModelToDto(x));
+            var ordersQuery = _context.Order.Include(x=> x.Customer).Include(x => x.Items).Select(x => ModelToDto(x));
             return await ordersQuery.AsNoTracking().ToListAsync();
         }
 
@@ -52,7 +52,11 @@ namespace LanchesDoTioAPI.Services.Implemetations
             return new OrderDTO
             {
                 Id = order.Id,
-                Customer = order.Customer,
+                Customer = new CustomerDTO()
+                {
+                    Id = order.CustomerId,
+                    Name = order.Customer.Name                
+                },
                 TotalPrice = order.getTotalCost(),
                 CreatedDate = order.CreatedDate,
                 Items = order.Items

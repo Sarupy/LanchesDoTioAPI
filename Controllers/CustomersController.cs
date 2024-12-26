@@ -54,7 +54,7 @@ namespace LanchesDoTioAPI.Controllers
         }
 
         // GET: api/Customers/Payment/5
-        [HttpPost("/Payment/{id}")]
+        [HttpPost("Payment/{id}")]
         public async Task<ActionResult<CustomerDTO>> Payment(int id, [FromQuery] decimal value)
         {
             var customer = await _customerService.Pay(id, value);
