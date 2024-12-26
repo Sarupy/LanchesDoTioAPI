@@ -68,5 +68,15 @@ namespace LanchesDoTioAPI.Controllers
 
             return NoContent();
         }
+
+        [HttpDelete("all")]
+        public async Task<IActionResult> DeleteAll()
+        {
+            var meals = _context.Meal.ToList();
+            _context.Meal.RemoveRange(meals);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }

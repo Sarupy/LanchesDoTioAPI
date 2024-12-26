@@ -60,5 +60,15 @@ namespace LanchesDoTioAPI.Controllers
 
             return CreatedAtAction("GetOrder", new { id = order.Id }, order);
         }
+
+        [HttpDelete("all")]
+        public async Task<IActionResult> DeleteAll()
+        {
+            var orders = _context.Order.ToList();
+            _context.Order.RemoveRange(orders);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }
