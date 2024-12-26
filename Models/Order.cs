@@ -12,7 +12,7 @@ namespace LanchesDoTioAPI.Models
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public Customer Customer { get; set; }
         public List<OrderItem>? Items { get; set; }
-        public decimal? PaymentAmount { get; set; }
+        public decimal PaymentAmount { get; set; } = 0;
 
         public Order()
         {
@@ -23,9 +23,12 @@ namespace LanchesDoTioAPI.Models
             this.Type = OrderType.Payment;
             this.PaymentAmount = paymentAmount;
         }
-        public decimal getTotalPrice()
+        public decimal getTotalCost()
         {
-            return Items.Sum(x => x.Quantity * x.Meal.GetPriceAtDateTime(CreatedDate));           
+            if (Type == OrderType.Payment)
+                return PaymentAmount * -1;
+
+            return Items.Sum(x => x.Quantity * x.Meal.GetPriceAtDateTime(CreatedDate)); ;
         }
     }
 }

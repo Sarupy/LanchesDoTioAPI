@@ -53,6 +53,15 @@ namespace LanchesDoTioAPI.Controllers
             return Ok(customer);
         }
 
+        // GET: api/Customers/Payment/5
+        [HttpPost("/Payment/{id}")]
+        public async Task<ActionResult<CustomerDTO>> Payment(int id, [FromQuery] decimal value)
+        {
+            var customer = await _customerService.Pay(id, value);
+
+            return Ok(customer);
+        }
+
         // PUT: api/Customers/rename/5?newName={newName}
         [HttpPut("Rename/{id}")]
         public async Task<ActionResult<CustomerDTO>> RenameCustomer(int id, [FromQuery] string newName)

@@ -53,7 +53,7 @@ namespace LanchesDoTioAPI.Services.Implemetations
             {
                 Id = order.Id,
                 Customer = order.Customer,
-                TotalPrice = order.getTotalPrice(),
+                TotalPrice = order.getTotalCost(),
                 CreatedDate = order.CreatedDate,
                 Items = order.Items
             };

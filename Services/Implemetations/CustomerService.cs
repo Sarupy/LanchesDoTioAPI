@@ -29,8 +29,8 @@ namespace LanchesDoTioAPI.Services.Implemetations
         {
             var customer = DtoToModel(customerDTO);
             _context.Customer.Add(customer);
-            var mealId = await _context.SaveChangesAsync();
-            customerDTO.Id = mealId;
+            var customerId = await _context.SaveChangesAsync();
+            customerDTO.Id = customerId;
             return customerDTO;
         }
         public async Task<CustomerDTO> Pay(int customerId, decimal value)
@@ -66,7 +66,9 @@ namespace LanchesDoTioAPI.Services.Implemetations
             decimal debt = 0;
 
             if (customer.Orders?.Count > 0)
-                debt = customer.Orders.Sum(x => x.getTotalPrice());
+            {
+                debt += customer.Orders.Where(x=> x.Type == Models.Enums.OrderType.Purchase).Sum(x => x.getTotalCost());
+            }   
 
             return new CustomerDTO
             {
