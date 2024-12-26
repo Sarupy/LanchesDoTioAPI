@@ -53,7 +53,7 @@ namespace LanchesDoTioAPI.Controllers
             return Ok(customer);
         }
 
-        // GET: api/Customers/Payment/5
+        // GET: api/Customers/Payment/5?value=10
         [HttpPost("Payment/{id}")]
         public async Task<ActionResult<CustomerDTO>> Payment(int id, [FromQuery] decimal value)
         {
@@ -86,6 +86,16 @@ namespace LanchesDoTioAPI.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             await _customerService.Delete(id);
+
+            return NoContent();
+        }
+
+        [HttpDelete("all")]
+        public async Task<IActionResult> DeleteAll()
+        {
+            var customers = _context.Customer.ToList();
+            _context.Customer.RemoveRange(customers);
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
