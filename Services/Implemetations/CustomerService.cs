@@ -21,7 +21,9 @@ namespace LanchesDoTioAPI.Services.Implemetations
         }
         public async Task<IEnumerable<CustomerDTO>> GetAll()
         {
-            var allCustomersQuery = _context.Customer.Include(x => x.Orders).ThenInclude(x=> x.Items).ThenInclude(x=> x.Meal).ThenInclude(x=>x.PriceHistoryList);
+            //TODO: This does not performs well, maybe add static property OrderPrice to Order, to avoid those includes to get the actual prices
+            var allCustomersQuery = _context.Customer.Include(x => x.Orders).ThenInclude(x=> x.Items)
+                .ThenInclude(x=> x.Meal).ThenInclude(x=>x.PriceHistoryList);
             return (await allCustomersQuery.AsNoTracking().ToListAsync()).Select(x => ModelToDto(x));
         }
 
@@ -101,7 +103,8 @@ namespace LanchesDoTioAPI.Services.Implemetations
         }
         private async Task<Customer> EnsureCustomerExists(int customerId)
         {
-            var customer = await _context.Customer.FindAsync(customerId);
+            var customer = _context.Customer.Include(x => x.Orders).ThenInclude(x => x.Items)
+                .ThenInclude(x => x.Meal).ThenInclude(x => x.PriceHistoryList).FirstOrDefault(x=> x.Id == customerId);
 
             if (customer == null)
                 throw new KeyNotFoundException($"Customer with ID {customerId} was not found.");
