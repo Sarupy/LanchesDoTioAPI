@@ -72,7 +72,7 @@ namespace LanchesDoTioAPI.Controllers
         [HttpDelete("all")]
         public async Task<IActionResult> DeleteAll()
         {
-            var meals = _context.Meal.ToList();
+            var meals = await _context.Meal.AsNoTracking().ToListAsync();
             _context.Meal.RemoveRange(meals);
             await _context.SaveChangesAsync();
 

@@ -37,7 +37,7 @@ namespace LanchesDoTioAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Order>> GetOrderById(int id)
         {
-            var order = _orderService.GetById(id);
+            var order = await _orderService.GetById(id);
 
             return Ok(order);
         }
@@ -46,7 +46,7 @@ namespace LanchesDoTioAPI.Controllers
         [HttpGet("ByCustomer/{id}")]
         public async Task<ActionResult<Order>> GetOrdersByCustomerId(int id)
         {
-            var order = _orderService.GetByCustomer(id);
+            var order = await _orderService.GetByCustomer(id);
 
             return Ok(order);
         }
@@ -56,7 +56,7 @@ namespace LanchesDoTioAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<Order>> PostOrder(OrderDTO orderDTO)
         {
-            var order = _orderService.Create(orderDTO);
+            var order = await _orderService.Create(orderDTO);
 
             return CreatedAtAction("GetOrder", new { id = order.Id }, order);
         }
@@ -64,7 +64,7 @@ namespace LanchesDoTioAPI.Controllers
         [HttpDelete("all")]
         public async Task<IActionResult> DeleteAll()
         {
-            var orders = _context.Order.ToList();
+            var orders = await _context.Order.AsNoTracking().ToListAsync();
             _context.Order.RemoveRange(orders);
             await _context.SaveChangesAsync();
 
