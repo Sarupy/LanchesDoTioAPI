@@ -28,7 +28,7 @@ namespace LanchesDoTioAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
         {
-            var orders = _orderService.GetAll();
+            var orders = await _orderService.GetAll();
 
             return Ok(orders);
         }
