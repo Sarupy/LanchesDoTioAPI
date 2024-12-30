@@ -73,8 +73,8 @@ namespace LanchesDoTioAPI.Services.Implemetations
                 {
                     if (order.Type == Models.Enums.OrderType.Payment)                  
                         debt -= order.PaymentAmount;
-
-                    debt += order.getTotalCost();
+                    else
+                        debt += order.getTotalCost();
                 }
             }   
 
