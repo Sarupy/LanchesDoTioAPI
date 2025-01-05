@@ -1,7 +1,6 @@
 ﻿using LanchesDoTioAPI.Data;
 using LanchesDoTioAPI.DTO;
 using LanchesDoTioAPI.Models;
-using LanchesDoTioAPI.Adapters;
 using LanchesDoTioAPI.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,19 +17,19 @@ namespace LanchesDoTioAPI.Services.Implemetations
         public async Task<CustomerDTO> GetById(int customerId)
         {
             var customer = await EnsureCustomerExists(customerId);
-            return CustomerAdapter.ModelToDto(customer);
+            return CustomerMapper.ModelToDto(customer);
         }
         public async Task<IEnumerable<CustomerDTO>> GetAll()
         {
             //TODO: This does not performs well, maybe add static property OrderPrice to Order, to avoid those includes to get the actual prices
             var allCustomersQuery = _context.Customer.Include(x => x.Orders).ThenInclude(x=> x.Items)
                 .ThenInclude(x=> x.Meal).ThenInclude(x=>x.PriceHistoryList);
-            return (await allCustomersQuery.AsNoTracking().ToListAsync()).Select(x => CustomerAdapter.ModelToDto(x));
+            return (await allCustomersQuery.AsNoTracking().ToListAsync()).Select(x => CustomerMapper.ModelToDto(x));
         }
 
         public async Task<CustomerDTO> Create(CustomerDTO customerDTO)
         {
-            var customer = CustomerAdapter.DtoToModel(customerDTO);
+            var customer = CustomerMapper.DtoToModel(customerDTO);
             _context.Customer.Add(customer);
             var customerId = await _context.SaveChangesAsync();
             customerDTO.Id = customerId;
@@ -45,7 +44,7 @@ namespace LanchesDoTioAPI.Services.Implemetations
             _context.Entry(customer).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return CustomerAdapter.ModelToDto(customer);
+            return CustomerMapper.ModelToDto(customer);
         }
         public async Task<CustomerDTO> Rename(int customerId, string newName)
         {
@@ -61,7 +60,7 @@ namespace LanchesDoTioAPI.Services.Implemetations
                 await _context.SaveChangesAsync();
             }
 
-            return CustomerAdapter.ModelToDto(customer);
+            return CustomerMapper.ModelToDto(customer);
         }
 
         public async Task Delete(int customerId)

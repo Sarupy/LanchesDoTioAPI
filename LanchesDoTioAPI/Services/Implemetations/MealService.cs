@@ -1,6 +1,6 @@
-﻿using LanchesDoTioAPI.Adapters;
-using LanchesDoTioAPI.Data;
+﻿using LanchesDoTioAPI.Data;
 using LanchesDoTioAPI.DTO;
+using LanchesDoTioAPI.Mappers;
 using LanchesDoTioAPI.Models;
 using LanchesDoTioAPI.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -18,17 +18,17 @@ namespace LanchesDoTioAPI.Services.Implemetations
         public async Task<MealDTO> GetById(int mealId)
         {
             var meal = await EnsureMealExists(mealId);
-            return MealAdapter.ModelToDto(meal);
+            return MealMapper.ModelToDto(meal);
         }
         public async Task<IEnumerable<MealDTO>> GetAll()
         {
-            var allMealsQuery = _context.Meal.Include(x => x.PriceHistoryList).Select(x => MealAdapter.ModelToDto(x));
+            var allMealsQuery = _context.Meal.Include(x => x.PriceHistoryList).Select(x => MealMapper.ModelToDto(x));
             return await allMealsQuery.AsNoTracking().ToListAsync();
         }
 
         public async Task<MealDTO> Create(MealDTO mealDTO)
         {
-            var meal = MealAdapter.DtoToModel(mealDTO);
+            var meal = MealMapper.DtoToModel(mealDTO);
             _context.Meal.Add(meal);
             var mealId = await _context.SaveChangesAsync();
             mealDTO.Id = mealId;
@@ -57,7 +57,7 @@ namespace LanchesDoTioAPI.Services.Implemetations
             _context.Entry(meal).State = EntityState.Modified;
             await _context.SaveChangesAsync();
                 
-            return MealAdapter.ModelToDto(meal);
+            return MealMapper.ModelToDto(meal);
         }
 
         public async Task Delete(int mealId)

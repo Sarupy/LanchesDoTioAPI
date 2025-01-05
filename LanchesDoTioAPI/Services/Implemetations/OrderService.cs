@@ -1,8 +1,7 @@
-﻿using LanchesDoTioAPI.Adapters;
-using LanchesDoTioAPI.Data;
+﻿using LanchesDoTioAPI.Data;
 using LanchesDoTioAPI.DTO;
+using LanchesDoTioAPI.Mappers;
 using LanchesDoTioAPI.Models;
-using LanchesDoTioAPI.Models.Enums;
 using LanchesDoTioAPI.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,13 +21,13 @@ namespace LanchesDoTioAPI.Services.Implemetations
         {
             var order = await EnsureOrderExists(orderId);
 
-            return OrderAdapter.ModelToDto(order);
+            return OrderMapper.ModelToDto(order);
         }
 
         public async Task<IEnumerable<OrderDTO>> GetByCustomer(int customerId)
         {
             var orders = await _context.Order.Include(x => x.Customer).Include(x => x.Items).AsNoTracking()
-                .Where(x => x.CustomerId == customerId).Select(x => OrderAdapter.ModelToDto(x)).ToListAsync();
+                .Where(x => x.CustomerId == customerId).Select(x => OrderMapper.ModelToDto(x)).ToListAsync();
 
             return orders;
         }
@@ -36,13 +35,13 @@ namespace LanchesDoTioAPI.Services.Implemetations
         public async Task<IEnumerable<OrderDTO>> GetAll()
         {
             var ordersQuery = _context.Order.Include(x=> x.Customer).Include(x => x.Items).ThenInclude(x=> x.Meal)
-                .ThenInclude(x => x.PriceHistoryList).Select(x => OrderAdapter.ModelToDto(x));
+                .ThenInclude(x => x.PriceHistoryList).Select(x => OrderMapper.ModelToDto(x));
             return await ordersQuery.AsNoTracking().ToListAsync();
         }
 
         public async Task<OrderDTO> Create(OrderDTO OrderDTO)
         {
-            var order = OrderAdapter.DtoToModel(OrderDTO);
+            var order = OrderMapper.DtoToModel(OrderDTO);
             _context.Order.Add(order);
             var mealId = await _context.SaveChangesAsync();
             OrderDTO.Id = mealId;
