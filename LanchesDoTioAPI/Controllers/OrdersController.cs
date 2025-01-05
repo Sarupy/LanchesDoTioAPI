@@ -58,7 +58,7 @@ namespace LanchesDoTioAPI.Controllers
         {
             var order = await _orderService.Create(orderDTO);
 
-            return CreatedAtAction("GetOrder", new { id = order.Id }, order);
+            return CreatedAtAction("GetOrderById", new { id = order.Id }, order);
         }
 
         [HttpDelete("all")]

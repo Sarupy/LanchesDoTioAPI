@@ -1,4 +1,5 @@
 ﻿using LanchesDoTioAPI.Models;
+using LanchesDoTioAPI.Models.Enums;
 
 namespace LanchesDoTioAPI.DTO
 {
@@ -9,5 +10,6 @@ namespace LanchesDoTioAPI.DTO
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public List<OrderItem>? Items { get; set; }
         public decimal TotalPrice { get; set; }
+        public OrderType Type { get; set; } = OrderType.Purchase;
     }
 }

@@ -57,6 +57,7 @@ namespace LanchesDoTioAPI.Services.Implemetations
                     Id = order.CustomerId,
                     Name = order.Customer.Name                
                 },
+                Type = order.Type,
                 TotalPrice = order.getTotalCost(),
                 CreatedDate = order.CreatedDate,
                 Items = order.Items
