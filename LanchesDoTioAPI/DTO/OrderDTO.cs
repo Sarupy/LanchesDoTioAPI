@@ -8,7 +8,7 @@ namespace LanchesDoTioAPI.DTO
         public int Id { get; set; }
         public CustomerDTO Customer { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
-        public List<OrderItem>? Items { get; set; }
+        public IEnumerable<OrderItemDTO>? Items { get; set; }
         public decimal TotalPrice { get; set; }
         public OrderType Type { get; set; } = OrderType.Purchase;
     }

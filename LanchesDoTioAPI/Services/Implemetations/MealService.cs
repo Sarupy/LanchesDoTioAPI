@@ -1,4 +1,5 @@
-﻿using LanchesDoTioAPI.Data;
+﻿using LanchesDoTioAPI.Adapters;
+using LanchesDoTioAPI.Data;
 using LanchesDoTioAPI.DTO;
 using LanchesDoTioAPI.Models;
 using LanchesDoTioAPI.Services.Interfaces;
@@ -17,17 +18,17 @@ namespace LanchesDoTioAPI.Services.Implemetations
         public async Task<MealDTO> GetById(int mealId)
         {
             var meal = await EnsureMealExists(mealId);
-            return ModelToDto(meal);
+            return MealAdapter.ModelToDto(meal);
         }
         public async Task<IEnumerable<MealDTO>> GetAll()
         {
-            var allMealsQuery = _context.Meal.Include(x => x.PriceHistoryList).Select(x => ModelToDto(x));
+            var allMealsQuery = _context.Meal.Include(x => x.PriceHistoryList).Select(x => MealAdapter.ModelToDto(x));
             return await allMealsQuery.AsNoTracking().ToListAsync();
         }
 
         public async Task<MealDTO> Create(MealDTO mealDTO)
         {
-            var meal = DtoToModel(mealDTO);
+            var meal = MealAdapter.DtoToModel(mealDTO);
             _context.Meal.Add(meal);
             var mealId = await _context.SaveChangesAsync();
             mealDTO.Id = mealId;
@@ -56,7 +57,7 @@ namespace LanchesDoTioAPI.Services.Implemetations
             _context.Entry(meal).State = EntityState.Modified;
             await _context.SaveChangesAsync();
                 
-            return ModelToDto(meal);
+            return MealAdapter.ModelToDto(meal);
         }
 
         public async Task Delete(int mealId)
@@ -65,26 +66,6 @@ namespace LanchesDoTioAPI.Services.Implemetations
 
             _context.Meal.Remove(meal);
             await _context.SaveChangesAsync();
-        }
-
-
-        public static MealDTO ModelToDto(Meal meal)
-        {
-            return new MealDTO
-            {
-                Id = meal.Id,
-                Name = meal.Name,
-                Price = meal.CurrentPrice
-            };
-        }
-        private static Meal DtoToModel(MealDTO mealDTO)
-        {
-            return new Meal
-            {
-                Id = mealDTO.Id,
-                Name = mealDTO.Name,
-                PriceHistoryList = [new PriceHistory(mealDTO.Price)]
-            };
         }
         private async Task<Meal> EnsureMealExists(int mealId)
         {

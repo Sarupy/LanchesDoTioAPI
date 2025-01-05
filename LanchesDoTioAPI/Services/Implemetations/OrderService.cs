@@ -1,4 +1,5 @@
-﻿using LanchesDoTioAPI.Data;
+﻿using LanchesDoTioAPI.Adapters;
+using LanchesDoTioAPI.Data;
 using LanchesDoTioAPI.DTO;
 using LanchesDoTioAPI.Models;
 using LanchesDoTioAPI.Models.Enums;
@@ -21,57 +22,31 @@ namespace LanchesDoTioAPI.Services.Implemetations
         {
             var order = await EnsureOrderExists(orderId);
 
-            return ModelToDto(order);
+            return OrderAdapter.ModelToDto(order);
         }
 
         public async Task<IEnumerable<OrderDTO>> GetByCustomer(int customerId)
         {
             var orders = await _context.Order.Include(x => x.Customer).Include(x => x.Items).AsNoTracking()
-                .Where(x => x.CustomerId == customerId).Select(x => ModelToDto(x)).ToListAsync();
+                .Where(x => x.CustomerId == customerId).Select(x => OrderAdapter.ModelToDto(x)).ToListAsync();
 
             return orders;
         }
 
         public async Task<IEnumerable<OrderDTO>> GetAll()
         {
-            var ordersQuery = _context.Order.Include(x=> x.Customer).Include(x => x.Items).Select(x => ModelToDto(x));
+            var ordersQuery = _context.Order.Include(x=> x.Customer).Include(x => x.Items).ThenInclude(x=> x.Meal)
+                .ThenInclude(x => x.PriceHistoryList).Select(x => OrderAdapter.ModelToDto(x));
             return await ordersQuery.AsNoTracking().ToListAsync();
         }
 
         public async Task<OrderDTO> Create(OrderDTO OrderDTO)
         {
-            var order = DtoToModel(OrderDTO);
+            var order = OrderAdapter.DtoToModel(OrderDTO);
             _context.Order.Add(order);
             var mealId = await _context.SaveChangesAsync();
             OrderDTO.Id = mealId;
             return OrderDTO;
-        }
-
-        public static OrderDTO ModelToDto(Order order)
-        {
-            return new OrderDTO
-            {
-                Id = order.Id,
-                Customer = new CustomerDTO()
-                {
-                    Id = order.CustomerId,
-                    Name = order.Customer.Name                
-                },
-                Type = order.Type,
-                TotalPrice = order.getTotalCost(),
-                CreatedDate = order.CreatedDate,
-                Items = order.Items
-            };
-        }
-        private static Order DtoToModel(OrderDTO orderDTO)
-        {
-            return new Order
-            {
-                Id = orderDTO.Id,
-                CustomerId = orderDTO.Customer.Id,
-                Items = orderDTO.Items,
-                CreatedDate = orderDTO.CreatedDate,
-            };
         }
 
         private async Task<Order> EnsureOrderExists(int orderId)

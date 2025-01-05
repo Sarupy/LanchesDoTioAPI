@@ -1,6 +1,7 @@
 ﻿using LanchesDoTioAPI.Data;
 using LanchesDoTioAPI.DTO;
 using LanchesDoTioAPI.Models;
+using LanchesDoTioAPI.Adapters;
 using LanchesDoTioAPI.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,19 +18,19 @@ namespace LanchesDoTioAPI.Services.Implemetations
         public async Task<CustomerDTO> GetById(int customerId)
         {
             var customer = await EnsureCustomerExists(customerId);
-            return ModelToDto(customer);
+            return CustomerAdapter.ModelToDto(customer);
         }
         public async Task<IEnumerable<CustomerDTO>> GetAll()
         {
             //TODO: This does not performs well, maybe add static property OrderPrice to Order, to avoid those includes to get the actual prices
             var allCustomersQuery = _context.Customer.Include(x => x.Orders).ThenInclude(x=> x.Items)
                 .ThenInclude(x=> x.Meal).ThenInclude(x=>x.PriceHistoryList);
-            return (await allCustomersQuery.AsNoTracking().ToListAsync()).Select(x => ModelToDto(x));
+            return (await allCustomersQuery.AsNoTracking().ToListAsync()).Select(x => CustomerAdapter.ModelToDto(x));
         }
 
         public async Task<CustomerDTO> Create(CustomerDTO customerDTO)
         {
-            var customer = DtoToModel(customerDTO);
+            var customer = CustomerAdapter.DtoToModel(customerDTO);
             _context.Customer.Add(customer);
             var customerId = await _context.SaveChangesAsync();
             customerDTO.Id = customerId;
@@ -44,7 +45,7 @@ namespace LanchesDoTioAPI.Services.Implemetations
             _context.Entry(customer).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return ModelToDto(customer);
+            return CustomerAdapter.ModelToDto(customer);
         }
         public async Task<CustomerDTO> Rename(int customerId, string newName)
         {
@@ -60,38 +61,7 @@ namespace LanchesDoTioAPI.Services.Implemetations
                 await _context.SaveChangesAsync();
             }
 
-            return ModelToDto(customer);
-        }
-
-        private static CustomerDTO ModelToDto(Customer customer)
-        {
-            decimal debt = 0;
-
-            if (customer.Orders?.Count > 0)
-            {
-                foreach (var order in customer.Orders)
-                {
-                    if (order.Type == Models.Enums.OrderType.Payment)                  
-                        debt -= order.PaymentAmount;
-                    else
-                        debt += order.getTotalCost();
-                }
-            }   
-
-            return new CustomerDTO
-            {
-                Id = customer.Id,
-                Name = customer.Name,
-                Debt = debt
-            };
-        }
-        private static Customer DtoToModel(CustomerDTO customerDTO)
-        {
-            return new Customer
-            {
-                Id = customerDTO.Id,
-                Name = customerDTO.Name,
-            };
+            return CustomerAdapter.ModelToDto(customer);
         }
 
         public async Task Delete(int customerId)
