@@ -1,5 +1,6 @@
 ﻿using LanchesDoTioAPI.Data;
 using LanchesDoTioAPI.DTO;
+using LanchesDoTioAPI.Mappers;
 using LanchesDoTioAPI.Models;
 using LanchesDoTioAPI.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
