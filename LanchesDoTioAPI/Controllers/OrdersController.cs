@@ -18,7 +18,9 @@ namespace LanchesDoTioAPI.Controllers
     {
         private readonly LanchesContext _context;
         private readonly IOrderService _orderService;
-        public OrdersController(LanchesContext context, IOrderService orderService)
+        private readonly ILogger _logger;
+
+        public OrdersController(LanchesContext context, IOrderService orderService, ILogger<OrdersController> logger)
         {
             _context = context;
             _orderService = orderService;
@@ -56,9 +58,19 @@ namespace LanchesDoTioAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<Order>> PostOrder(OrderDTO orderDTO)
         {
-            var order = await _orderService.Create(orderDTO);
+            try
+            {
+                var order = await _orderService.Create(orderDTO);
 
-            return CreatedAtAction("GetOrderById", new { id = order.Id }, order);
+                return CreatedAtAction("GetOrderById", new { id = order.Id }, order);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message,
+                DateTime.UtcNow.ToLongTimeString());
+                return Ok();
+            }
+           
         }
 
         [HttpDelete("all")]
